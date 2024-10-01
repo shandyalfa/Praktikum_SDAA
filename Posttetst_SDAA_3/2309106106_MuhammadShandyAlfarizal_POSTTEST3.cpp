@@ -77,7 +77,17 @@ int inputInteger(string teks)
     }
 }
 
-void tambahPasien(Pasien *pasienBaru)
+void tambahPasienFirst(Pasien *pasienBaru)
+{
+    Node *nodeBaru = new Node();
+    nodeBaru->data = *pasienBaru;
+    nodeBaru->next = head;
+    head = nodeBaru;
+    warnaTeks("Pasien berhasil ditambahkan di awal.", "biru");
+    sleep();
+}
+
+void tambahPasienLast(Pasien *pasienBaru)
 {
     Node *nodeBaru = new Node();
     nodeBaru->data = *pasienBaru;
@@ -96,7 +106,7 @@ void tambahPasien(Pasien *pasienBaru)
         }
         temp->next = nodeBaru;
     }
-    warnaTeks("Pasien berhasil ditambahkan.", "biru");
+    warnaTeks("Pasien berhasil ditambahkan di akhir.", "biru");
     sleep();
 }
 
@@ -112,22 +122,6 @@ bool dataKosong()
     {
         return false;
     }
-}
-
-int cariPasien(string nama)
-{
-    Node *temp = head;
-    int indeks = 0;
-    while (temp != nullptr)
-    {
-        if (temp->data.nama == nama)
-        {
-            return indeks;
-        }
-        temp = temp->next;
-        indeks++;
-    }
-    return -1;
 }
 
 void tampilkanDaftarPasien()
@@ -178,7 +172,22 @@ void updatePasien(string nama)
     sleep();
 }
 
-void hapusPasien(string nama)
+void hapusPasienFirst()
+{
+    if (head == nullptr)
+    {
+        warnaTeks("Tidak ada pasien yang terdaftar.", "merah");
+        sleep();
+        return;
+    }
+    Node *temp = head;
+    head = head->next;
+    delete temp;
+    warnaTeks("Data pasien di awal berhasil dihapus.", "biru");
+    sleep();
+}
+
+void hapusPasienLast()
 {
     if (head == nullptr)
     {
@@ -187,37 +196,83 @@ void hapusPasien(string nama)
         return;
     }
 
-    if (head->data.nama == nama)
+    if (head->next == nullptr)
+    {
+        delete head;
+        head = nullptr;
+    }
+    else
     {
         Node *temp = head;
-        head = head->next;
-        delete temp;
-        warnaTeks("Data pasien berhasil dihapus.", "biru");
-        sleep();
-        return;
+        while (temp->next->next != nullptr)
+        {
+            temp = temp->next;
+        }
+        delete temp->next;
+        temp->next = nullptr;
     }
-
-    Node *temp = head;
-    while (temp->next != nullptr && temp->next->data.nama != nama)
-    {
-        temp = temp->next;
-    }
-
-    if (temp->next == nullptr)
-    {
-        warnaTeks("Pasien tidak ditemukan.", "merah");
-        sleep();
-        return;
-    }
-
-    Node *nodeHapus = temp->next;
-    temp->next = temp->next->next;
-    delete nodeHapus;
-    warnaTeks("Data pasien berhasil dihapus.", "biru");
+    warnaTeks("Data pasien di akhir berhasil dihapus.", "biru");
     sleep();
 }
 
-int main()
+void tambahPasien()
+{
+    Pasien *pasienBaru = new Pasien;
+    cin.ignore();
+    cout << "Masukkan nama   : ";
+    getline(cin, pasienBaru->nama);
+    pasienBaru->umur = inputInteger("Masukkan Umur   : ");
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    cout << "Masukkan alamat : ";
+    getline(cin, pasienBaru->alamat);
+    cout << "Masukkan keluhan: ";
+    getline(cin, pasienBaru->keluhan);
+ulang:
+    int pilihan;
+    pilihan = inputInteger("Pilih Mode (1. First / 2. Last): ");
+
+    if (pilihan == 1)
+    {
+        tambahPasienFirst(pasienBaru);
+    }
+    else if (pilihan == 2)
+    {
+        tambahPasienLast(pasienBaru);
+    }
+    else
+    {
+        warnaTeks("Pilihan tidak valid.", "merah");
+        sleep();
+        goto ulang;
+    }
+    delete pasienBaru;
+}
+
+void hapusPasien()
+{
+ulang:
+    if (dataKosong())
+        return;
+
+    int pilihan;
+    pilihan = inputInteger("Pilih Mode (1. First / 2. Last): ");
+
+    if (pilihan == 1)
+    {
+        hapusPasienFirst();
+    }
+    else if (pilihan == 2)
+    {
+        hapusPasienLast();
+    }
+    else
+    {
+        warnaTeks("Pilihan tidak valid.", "merah");
+        goto ulang;
+    }
+}
+
+void opsi_Pasien()
 {
     int pilihan;
     do
@@ -236,21 +291,8 @@ int main()
         switch (pilihan)
         {
         case 1:
-        {
-            Pasien *pasienBaru = new Pasien;
-            cin.ignore();
-            cout << "Masukkan nama   : ";
-            getline(cin, pasienBaru->nama);
-            pasienBaru->umur = inputInteger("Masukkan Umur   : ");
-            cin.ignore(numeric_limits<streamsize>::max(), '\n');
-            cout << "Masukkan alamat : ";
-            getline(cin, pasienBaru->alamat);
-            cout << "Masukkan keluhan: ";
-            getline(cin, pasienBaru->keluhan);
-            tambahPasien(pasienBaru);
-            delete pasienBaru;
+            tambahPasien();
             break;
-        }
         case 2:
             tampilkanDaftarPasien();
             break;
@@ -266,16 +308,8 @@ int main()
             break;
         }
         case 4:
-        {
-            if (dataKosong())
-                break;
-            fflush(stdin);
-            string nama;
-            cout << "Masukkan nama pasien yang ingin dihapus: ";
-            getline(cin, nama);
-            hapusPasien(nama);
+            hapusPasien();
             break;
-        }
         case 5:
             cout << "Terima kasih! Program selesai." << endl;
             break;
@@ -285,5 +319,10 @@ int main()
             break;
         }
     } while (pilihan != 5);
+}
+
+int main()
+{
+    opsi_Pasien();
     return 0;
 }
