@@ -101,6 +101,7 @@ string inputString(const string& prompt) {
     }
 }
 
+
 int inputInteger(string teks)
 {
     int numerik;
@@ -109,11 +110,17 @@ int inputInteger(string teks)
         cout << teks;
         cin >> numerik;
 
+        // Cek apakah input gagal atau tidak valid
         if (cin.fail())
         {
             cin.clear();
             cin.ignore(numeric_limits<streamsize>::max(), '\n');
             warnaTeks("Error: Masukan tidak valid. Harap masukkan angka integer.", "merah");
+        }
+        // Cek apakah angka yang dimasukkan lebih kecil dari 1 (termasuk 0 dan negatif)
+        else if (numerik <= 0)
+        {
+            warnaTeks("Error: Masukan harus lebih besar dari 0.", "merah");
         }
         else
         {
